@@ -253,7 +253,7 @@ library(tidyr)
 date <- separate(friends_birthday, dates, c("year", "month", "day"), sep = "-")
 
 date$year <- as.numeric(as.character(date$year))
-date$month <- as.factor(as.character(date$month))
+date$month <- as.numeric(as.character(date$month))
 date$day <- as.numeric(as.character(date$day))
 ```
 
@@ -261,24 +261,39 @@ date$day <- as.numeric(as.character(date$day))
 # (Reserve time with them or save money to buy them a gift!)
 
 ```{r}
-count(subset(date, date$month == '6' & date$day == '19'))
+count(subset(date, date$month == 6 & date$day == 19))
 ```
+
 # Which month contains the most number of birthdays?
 ```{r}
-max(summary(date$month))
-summary(date$month)[3]
+max(summary(as.factor(date$month)))
+summary(as.factor(date$month))[3]
 # Março é o mês com maior número de aniversários
 ```
+
 # How many birthdays are in each month?
 ```{r}
-summary(date$month)
+summary(as.factor(date$month))
 ```
+
+```{r}
+ggplot(aes(date$day), data = date) +
+  geom_histogram() +
+  facet_wrap(~as.factor(date$month), scales = 'free_y')
+```
+
 # Which day of the year has the most number of birthdays?
 ```{r}
+
 ```
+
 # Do you have at least 365 friends that have birthdays on everyday
 # of the year?
-
+```{r}
+friends_birthday$dates <- as.factor(friends_birthday$dates)
+str(friends_birthday)
+```
+A variável dates possui 348 diferentes tipos de data, portanto não existem amigos suficientes para que cada dia do ano tenha um aniversário.
 
 
 
