@@ -82,16 +82,19 @@ Que a diferença do número de amigos entre as diferentes idades não é tão gr
 ***
 
 ### Alpha and Jitter
-Notes:
+Notes: A quantidade de amizades iniciadas por pessoas entre 13 e 30 anos é em geral maior do que a quantidade de amizades iniciadas por pessoas de maior faixa etária. Isso pode também ser consequência de que o número de pessoas entre 13 e 30 é maior que o das demais. Há um pico no gráfico nas pessoas com 69 anos, o que é "estranho" uma vez que é muito diferente das pessoas com idades próximas a 69.
 
 ```{r Alpha and Jitter}
-
+ggplot(aes(x = age, y = friendships_initiated), data = pf) +
+  geom_jitter(alpha = 1/20, position = position_jitter(h = 0)) +
+  xlim(13, 90) +
+  coord_trans(y = 'sqrt')
 ```
 
 ***
 
 ### Overplotting and Domain Knowledge
-Notes:
+Notes: Interessante utilizar a porcentagem para modificar o eixo y para assim ter uma melhor ideia no quanto em relação ao total as pessoas acham que é a audiência de seus posts.
 
 ***
 
@@ -99,13 +102,33 @@ Notes:
 Notes:
 
 ```{r Conditional Means}
+library(dplyr)
+age_groups <- group_by(pf, age)
 
+pf.fc_by_age <- summarise(age_groups, 
+          friend_count_mean = mean(friend_count),
+          friend_count_median = median(as.numeric(friend_count)),
+          n = n())
+head(pf.fc_by_age)
+```
+
+```{r}
+pf.fc_by_age_2 <- pf %>%
+  group_by(age) %>%
+  summarise(friend_count_mean = mean(friend_count),
+          friend_count_median = median(as.numeric(friend_count)),
+          n = n()) %>%
+  arrange(age)
+
+head(pf.fc_by_age_2)
 ```
 
 Create your plot!
 
 ```{r Conditional Means Plot}
-
+ggplot(aes(x = age, y = friend_count_mean), data = pf.fc_by_age) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(13, 113, 5))
 ```
 
 ***
@@ -114,32 +137,49 @@ Create your plot!
 Notes:
 
 ```{r Overlaying Summaries with Raw Data}
-
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  xlim(13, 90) +
+  geom_point(alpha = 0.05, 
+             position = position_jitter(h = 0),
+             color = 'orange') +
+  coord_trans(y = 'sqrt') +
+  geom_line(stat = 'summary', fun.y = mean) +
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .1), 
+            linetype = 2, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .5), 
+            color = 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .9), 
+            linetype = 2, color = 'blue')
+  
+  
+  
 ```
 
 #### What are some of your observations of the plot?
-Response:
+Response: A mediana e a média são diferentes, isso acontece porque a média acaba sendo influenciada pelos valores mais extremos. Observando apenas valores entre 65 e 75, o pico mostrado no gráfico é resultado de valores extremos que acabam afetando a média. Also, entre 30 e 70 anos a média permanece abaixo de 250, ou seja grande parte desses usuários, de acordo com o facebook, não possuem mais de 250 amigos.
 
 ***
 
 ### Moira: Histogram Summary and Scatterplot
 See the Instructor Notes of this video to download Moira's paper on perceived audience size and to see the final plot.
 
-Notes:
+Notes: Usuários subestimam sua audiência e seu real alcance. Eles subestimam tanto sua audiência no geral como também em posts específicos.
 
 ***
 
 ### Correlation
-Notes:
+Notes: r(coeficiente de correlação) ao quadrado indica a variação de y com relação a x.
 
 ```{r Correlation}
-
+r <- cor(pf$age, pf$friend_count)
+cor.test(pf$age, pf$friend_count, method = 'pearson')
+with(pf, cor.test(age, friend_count, method = 'pearson'))
 ```
 
 Look up the documentation for the cor.test function.
 
 What's the correlation between age and friend count? Round to three decimal places.
-Response:
+Response: -0.027
 
 ***
 
@@ -147,7 +187,7 @@ Response:
 Notes:
 
 ```{r Correlation on Subsets}
-with(                 , cor.test(age, friend_count))
+with(subset(pf, age <= 70), cor.test(age, friend_count))
 ```
 
 ***
