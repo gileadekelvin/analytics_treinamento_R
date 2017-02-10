@@ -1,0 +1,289 @@
+Lesson 4
+========================================================
+
+```{r}
+setwd('~/analytics_treinamento_R/explore_two_variables')
+getwd()
+```
+***
+
+### Scatterplots and Perceived Audience Size
+Notes: Os participantes da pesquisa tendem a escolher números como 50, 100, por serem mais "exatos", o que dá ao scatterplot linhas horizontais. Também é possível identificar que as pessoas tendem a achar que sua audiência tem números baixos como 20, 30 ou 50, quando na verdade sua real audiência é de 80, 100. Por isso o gráfico aprensenta maior concentração de palpites em sua parte inferior.
+
+***
+
+### Scatterplots
+Notes:
+
+```{r Scatterplots}
+library(ggplot2)
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  geom_point()
+
+```
+
+***
+
+#### What are some things that you notice right away?
+Response: Pessoas mais novas entre 13 e 30 anos possuem mais amigos que pessoas mais velhas. Além disso, existem picos de pessoas com idades como 68-69 que possuem mais amigos que as demais pessoas de idades próximas, assim como algumas pessoas com mais de 100 anos. Isso pode ser um indício de dados incorretos sobre casos extremos.
+
+***
+
+### ggplot Syntax
+Notes: ggplot possui sintaxe mais complexa mas permite fazer gráficos mais completos.
+
+```{r ggplot Syntax}
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  geom_point() + xlim(13, 90)
+summary(pf$age)
+```
+
+***
+
+### Overplotting
+Notes: excesso de plotagem torna difícil saber quantos pontos estão em uma região.
+
+```{r Overplotting}
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  geom_jitter(alpha = 1/20) + 
+  xlim(13, 90)
+```
+
+#### What do you notice in the plot?
+Response: Existe uma grande concetração de pessoas entre 13 e 25 anos que possuem mais amigos do que com relação a faixa etária acima de 30 anos. Mas a diferença não é mais tão grande como anteriormente sem usar o alpha = 1/20. 
+***
+
+### Coord_trans()
+Notes:
+
+```{r Coord_trans()}
+?coord_trans
+```
+
+#### Look up the documentation for coord_trans() and add a layer to the plot that transforms friend_count using the square root function. Create your plot!
+
+```{r}
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  geom_point(alpha = 1/20) + 
+  xlim(13, 90) +
+  coord_trans(y = "sqrt")
+
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  geom_jitter(alpha = 1/20, position = position_jitter(h = 0)) + 
+  xlim(13, 90) +
+  coord_trans(y = "sqrt")
+
+```
+
+#### What do you notice?
+Que a diferença do número de amigos entre as diferentes idades não é tão grande assim, e que na idade de 69 anos é observado um pico, diferenciando as pessoas dessa idade da média de sua faixa etária. Existem certos limites para cada grupo da mesma faixa etária.
+
+***
+
+### Alpha and Jitter
+Notes:
+
+```{r Alpha and Jitter}
+
+```
+
+***
+
+### Overplotting and Domain Knowledge
+Notes:
+
+***
+
+### Conditional Means
+Notes:
+
+```{r Conditional Means}
+
+```
+
+Create your plot!
+
+```{r Conditional Means Plot}
+
+```
+
+***
+
+### Overlaying Summaries with Raw Data
+Notes:
+
+```{r Overlaying Summaries with Raw Data}
+
+```
+
+#### What are some of your observations of the plot?
+Response:
+
+***
+
+### Moira: Histogram Summary and Scatterplot
+See the Instructor Notes of this video to download Moira's paper on perceived audience size and to see the final plot.
+
+Notes:
+
+***
+
+### Correlation
+Notes:
+
+```{r Correlation}
+
+```
+
+Look up the documentation for the cor.test function.
+
+What's the correlation between age and friend count? Round to three decimal places.
+Response:
+
+***
+
+### Correlation on Subsets
+Notes:
+
+```{r Correlation on Subsets}
+with(                 , cor.test(age, friend_count))
+```
+
+***
+
+### Correlation Methods
+Notes:
+
+***
+
+## Create Scatterplots
+Notes:
+
+```{r}
+
+```
+
+***
+
+### Strong Correlations
+Notes:
+
+```{r Strong Correlations}
+
+```
+
+What's the correlation betwen the two variables? Include the top 5% of values for the variable in the calculation and round to 3 decimal places.
+
+```{r Correlation Calcuation}
+
+```
+
+Response:
+
+***
+
+### Moira on Correlation
+Notes:
+
+***
+
+### More Caution with Correlation
+Notes:
+
+```{r More Caution With Correlation}
+install.packages('alr3')
+library(alr3)
+```
+
+Create your plot!
+
+```{r Temp vs Month}
+
+```
+
+***
+
+### Noisy Scatterplots
+a. Take a guess for the correlation coefficient for the scatterplot.
+
+b. What is the actual correlation of the two variables?
+(Round to the thousandths place)
+
+```{r Noisy Scatterplots}
+
+```
+
+***
+
+### Making Sense of Data
+Notes:
+
+```{r Making Sense of Data}
+
+```
+
+***
+
+### A New Perspective
+
+What do you notice?
+Response:
+
+Watch the solution video and check out the Instructor Notes!
+Notes:
+
+***
+
+### Understanding Noise: Age to Age Months
+Notes:
+
+```{r Understanding Noise: Age to Age Months}
+
+```
+
+***
+
+### Age with Months Means
+
+```{r Age with Months Means}
+
+```
+
+Programming Assignment
+```{r Programming Assignment}
+
+```
+
+***
+
+### Noise in Conditional Means
+
+```{r Noise in Conditional Means}
+
+```
+
+***
+
+### Smoothing Conditional Means
+Notes:
+
+```{r Smoothing Conditional Means}
+
+```
+
+***
+
+### Which Plot to Choose?
+Notes:
+
+***
+
+### Analyzing Two Variables
+Reflection:
+
+***
+
+Click **KnitHTML** to see all of your hard work and to have an html
+page of this lesson, your answers, and your notes!
+

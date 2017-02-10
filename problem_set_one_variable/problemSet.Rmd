@@ -294,6 +294,7 @@ date_month_day$month <- as.factor(date$month)
 summary(as.factor(date_month_day$month_day))[1:5]
 # 2-6-2014, 5-22-14 e 7-16-14 são as datas com maior número de aniversários
 
+
 # O histograma a seguir mostra os picos nas datas citadas anteriormente, em cada uma delas 8 amigos fazem aniversario
 ggplot(aes(x = day), data = date) +
   geom_histogram(binwidth = 1) + 
