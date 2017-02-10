@@ -274,16 +274,26 @@ summary(as.factor(date$month))[3]
 # How many birthdays are in each month?
 ```{r}
 summary(as.factor(date$month))
-```
+month_birthdays <- data.frame(summary(as.factor(date$month)))
+month_birthdays$months <- (seq(1, 12, 1))
+names(month_birthdays)[1] <- "number_of_birthdays"
+names(month_birthdays)[2] <- "months"
+month_birthdays$months <- as.factor(month_birthdays$months)
 
-```{r}
-ggplot(aes(date$day), data = date) +
-  geom_histogram() +
-  facet_wrap(~as.factor(date$month), scales = 'free_y')
+ggplot(data=month_birthdays, aes(x=months, y=number_of_birthdays)) + geom_bar(stat="identity", color = I('#004D40'), fill = I('#009688')) +
+  ylab('Number of birthdays')
+
+
 ```
 
 # Which day of the year has the most number of birthdays?
 ```{r}
+date_month_day <- unite(date, "month_day", month, day, sep = "-")
+date_month_day$month <- as.factor(date$month)
+
+summary(as.factor(date_month_day$month_day))[1:3]
+# 2-6-2014, 5-22-14 e 7-16-14 são as datas com maior número de aniversários
+
 
 ```
 
