@@ -5,7 +5,7 @@ Lesson 5
 setwd('~/analytics_treinamento_R/explore_many_variables')
 getwd()
 library(ggplot2)
-pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+pf <- read.csv('~/analytics_treinamento_R/explore_two_variables/pseudo_facebook.tsv', sep = '\t')
 ```
 
 ### Multivariate Data
