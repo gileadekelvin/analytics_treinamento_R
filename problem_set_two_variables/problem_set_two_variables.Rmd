@@ -1,0 +1,181 @@
+---
+title: 'Problem Set: Explore Two Variables'
+author: "Gileade"
+date: "13 de fevereiro de 2017"
+output: html_document
+---
+
+```{r setup}
+setwd('~/analytics_treinamento_R/problem_set_two_variables')
+getwd()
+library(ggplot2)
+library(dplyr)
+data("diamonds")
+library(gridExtra)
+```
+
+## Quiz: price vs x
+
+```{r price vs x}
+ggplot(aes(x = x, y = price), data = diamonds) +
+  geom_point()
+```
+
+Observações: Que pode haver uma correlação entre o preço e o comprimento(x) em mm e o preço dos diamantes.
+
+## Quiz: Correlations
+
+```{r correlations}
+# Between price and x
+cor.test(diamonds$price, diamonds$x, method = 'pearson')
+# Between price and y
+cor.test(diamonds$price, diamonds$y, method = 'pearson')
+# Between price and z
+cor.test(diamonds$price, diamonds$z, method = 'pearson')
+```
+
+## Quiz: price vs depth
+
+```{r price vs depth}
+ggplot(aes(x = z, y = price), data = diamonds) +
+  geom_point(alpha = 1/100) +
+  scale_x_continuous(breaks = seq(0, 32, 2))
+```
+
+
+## Quiz: Correlation - price and depth
+
+```{r correlation - price and depth}
+cor.test(diamonds$price, diamonds$depth, method = 'pearson')
+```
+Você usaria o z(depth) para prevê o preço de um diamante?
+não, o valor da correlação é muito baixo (pŕoximo a 0).
+
+## Quiz: price vs carat
+
+```{r price vs carat}
+ggplot(aes(x = carat, y = price), data = diamonds) +
+  geom_point() +
+  xlim(0, quantile(diamonds$carat, 0.99)) +
+  ylim(0, quantile(diamonds$price, 0.99))
+```
+
+## Quiz: price vs volume
+
+```{r price vs volume}
+diamonds$volume <- diamonds$x * diamonds$y * diamonds$z
+
+ggplot(aes(x = volume, y = price), data = diamonds) +
+  geom_point()
+
+cor.test(diamonds$price, diamonds$volume, method = 'pearson')
+```
+Observações: Que há uma correlação entre volume e preço, uma vez que o R de peasons é de 0.9, muito próximo a 1. Ou seja, é possível prevê o preço a partir do volume, embora se observe uma exceção no plot.
+
+## Quiz: Correlations on Subsets
+
+```{r correlation on subsets}
+diamonds.volume_cut <- subset(diamonds, diamonds$volume <= 800 & diamonds$volume != 0)
+cor.test(diamonds.volume_cut$price, diamonds.volume_cut$volume, method = 'pearson')
+```
+
+## Quiz: Adjustments - price vs volume
+
+```{r price vs volume}
+ggplot(aes(x = volume, y = price), data = diamonds.volume_cut) +
+  geom_point(alpha = 1/20) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(colour = 'orange')
+```
+
+## Quiz: Mean Price by Clarity
+
+```{r mean price by clarity}
+clarity_groups <- group_by(diamonds, clarity)
+
+diamondsByClarity <- summarise(clarity_groups, 
+                               mean_price = mean(price), 
+                               median_price = median(as.numeric(price)),
+                               min_price = min(price),
+                               max_price = max(price),
+                               n = n())
+
+diamondsByClarity <- arrange(diamondsByClarity, clarity)
+```
+
+## Quiz: Bar Charts of Mean Price
+
+```{r bar charts of mean price}
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+```
+
+```{r bar charts of mean price by clarity}
+p1 <- ggplot(aes(x = clarity, y = mean_price), data = diamonds_mp_by_clarity) +
+  geom_bar(stat="identity", color = I('#004D40'), fill = I('#009688'))
+
+p2 <- ggplot(aes(x = color, y = mean_price), data = diamonds_mp_by_color) +
+  geom_bar(stat="identity", color = I('#1565C0'), fill = I('#2196F3'))
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Observações: No gráfico de barras da média de preço pela clarity, metade dos valores se mantém próximos a 4000, 3 outros estão abaixo, e apenas 1 acima. Já no gráfico de barras da média de preço pela color, os valores tendem a crescer conforme a cor varia da D(best) para a J(worst).
+
+## Quiz: Gapminder Revisited
+
+```{r}
+library(devtools)
+devtools::install_github(repo = "maksimhorowitz/nflscrapR")
+library(nflscrapR)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
