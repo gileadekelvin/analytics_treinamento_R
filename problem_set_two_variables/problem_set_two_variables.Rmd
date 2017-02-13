@@ -128,11 +128,91 @@ Observações: No gráfico de barras da média de preço pela clarity, metade do
 ## Quiz: Gapminder Revisited
 
 ```{r}
-library(devtools)
-devtools::install_github(repo = "maksimhorowitz/nflscrapR")
-library(nflscrapR)
-
+cell_total <- read.csv('cell_phone_total.csv', check.names = F)
+internet_users_per100 <- read.csv('Internet_user_per100.csv', check.names = F)
+library(tidyr)
 ```
+
+## Ajustando dados
+```{r}
+cell_total_changed <- gather(cell_total, "year", "n", 27:48)
+cell_total_changed <- subset(cell_total_changed, select = c(1, 27, 28))
+internet_users_per100_changed <- gather(internet_users_per100, "year", "n", 2:23)
+
+df <- data.frame(cell_total_changed)
+df$internet_per100 <- internet_users_per100_changed$n
+```
+
+## Scatterplot entre o número de usuários de internet a cada 100 habitantes, pelo número total de celulares.
+```{r}
+ggplot(aes(x = n, y = internet_per100), data = df) +
+  geom_point() +
+  scale_x_log10() +
+  geom_smooth()
+```
+
+```{r}
+cor.test(df$n, df$internet_per100, method = 'pearson')
+``` 
+
+Os dados mostram que de 1990 até 2011, em vários lugares do mundo, a correlação entre número total de celulares e o número de usuários a cada 100 pessoas não é forte. O que pode ser a causa disso?
+
+
+Se pegarmos apenas o subconjunto dos dados, selecinando os países que possuem pelo menos 20(usuários de internet) a cada 100 pessoas, e criarmos o gráfico de dispersão percebemos que:
+```{r}
+ggplot(aes(x = n, y = internet_per100), data = subset(df, df$n != 0 & df$internet_per100 >= 20)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_smooth()
+```
+
+```{r}
+cor.test(subset(df, internet_per100 >= 20 & n!=0)$n, subset(df, internet_per100 >= 20 & n!=0)$internet_per100, method = 'pearson')
+```
+A correlação torna-se ainda menor.
+
+Questionamento: contrariando o senso comum, pelo gráfico parece não haver correlação linear entre o número de usuários de internet a cada 100 pessoas, nas populações de diversos países do mundo, com o número total de celulares que as pessoas desses países possuem. Talvez seja um problema com os dados, que podem estar incorretos. Ou a variável ano está influenciando a forma com que os dados estão sendo visualizados. Vamos dar uma olhada em um país especifíco para tirar a dúvida.
+
+## Só no Brasil
+```{r}
+df.brasil <- subset(df, Mobile.cellular.subscriptions..total.number == 'Brazil')
+
+ggplot(aes(x = n, y = internet_per100), data = df.brasil) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(color = 'orange')
+```
+
+```{r}
+cor.test(df.brasil$n, df.brasil$internet_per100, method = 'pearson')
+```
+
+No Brasil a correlação é muito alta(0.98) entre o número de usuários da internet por cada 100 pessoas e o número de celulares ao longo do tempo. Portanto, inicialmente a variável ano, realmente estava atrapalhando a forma como os dados estavam sendo visualizados. Logo, foi preciso olhar mais de perto um país específico nos dados para confirmar a relação entre as duas variáveis investigadas.
+
+# Extra: Nos Estados Unidos
+```{r}
+df.usa <- subset(df, Mobile.cellular.subscriptions..total.number == 'United States')
+
+ggplot(aes(x = n, y = internet_per100), data = df.usa) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(color = 'orange')
+```
+
+```{r}
+cor.test(df.usa$n, df.usa$internet_per100, method = 'pearson')
+```
+
+Também há uma forte(0.96) correlação linear entre as duas variáveis pesquisadas.
+
+Conclusão: Durante minha análise tentei mostrar como todo o mundo se comportou nos anos entre 1990 e 2011 com a relação entre o número de usuários da internet por cada 100 pessoas e o número total de celulares. No entanto esbarrei no problema de que outras variáveis estavam mudando a forma como os dados eram visualizados. Precisei então restringir a análise a um país em específico para que dessa forma as técnicas aprendidas na lição 4 fossem aplicadas de forma correta.
+
+
+
+
+
+
+
 
 
 
