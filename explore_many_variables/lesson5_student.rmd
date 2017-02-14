@@ -2,10 +2,11 @@ Lesson 5
 ========================================================
 
 ```{r}
-setwd('~/analytics_treinamento_R/explore_many_variables')
+setwd('~/workspace/analytics_treinamento_R/explore_many_variables')
 getwd()
 library(ggplot2)
-pf <- read.csv('~/analytics_treinamento_R/explore_two_variables/pseudo_facebook.tsv', sep = '\t')
+library(dplyr)
+pf <- read.csv('~/workspace/analytics_treinamento_R/explore_two_variables/pseudo_facebook.tsv', sep = '\t')
 ```
 
 ### Multivariate Data
@@ -23,8 +24,20 @@ Notes:
 
 ```{r Third Qualitative Variable}
 ggplot(aes(x = gender, y = age),
-       data = subset(pf, !is.na(gender))) + geom_histogram()
+       data = subset(pf, !is.na(gender))) + geom_boxplot() +
+  stat_summary(fun.t = mean, geom = 'point', shape = 4)
 ```
+
+```{r}
+pf.fc_by_age_gender <- subset(pf, !is.na(gender)) %>%
+    group_by(age, gender) %>%
+    summarise(mean_friend_count = mean(friend_count), 
+        median_friend_count = median(friend_count), 
+        n = n()) %>%
+    ungroup() %>%
+    arrange(age)
+```
+
 
 ***
 
@@ -32,18 +45,19 @@ ggplot(aes(x = gender, y = age),
 Notes:
 
 ```{r Plotting Conditional Summaries}
-
+ggplot(aes(x = age, y = median_friend_count), data = pf.fc_by_age_gender) +
+  geom_line(aes(color = gender))
 ```
 
 ***
 
 ### Thinking in Ratios
-Notes:
+Notes: POdemos pensar em quantas vezes usuários female tem em média a mais que os usuários male.
 
 ***
 
 ### Wide and Long Format
-Notes:
+Notes: As vezes é preciso modificar a forma como os dados estão organizados para uma melhor análise.
 
 ***
 
@@ -51,10 +65,21 @@ Notes:
 Notes:
 
 ```{r}
-install.packages('reshape2')
+#install.packages('reshape2')
 library(reshape2)
+
+pf.fc_by_age_gender.wide <- dcast(pf.fc_by_age_gender,
+                                  age ~ gender, 
+                                  value.var = 'median_friend_count')
 ```
 
+Outra maneira
+```{r}
+library(tidyr)
+pf.fc_by_age_gender.wide <- subset(pf.fc_by_age_gender[c('age', 'gender', 'median_friend_count')]) %>%
+  spread(gender, median_friend_count) %>%
+  mutate(ratio = female / male)
+```
 
 ***
 
@@ -62,7 +87,9 @@ library(reshape2)
 Notes:
 
 ```{r Ratio Plot}
-
+ggplot(aes(x = age, y = ratio), data = pf.fc_by_age_gender.wide) +
+  geom_line() +
+  geom_hline(yintercept = 1, color = I('red'), linetype = 2)
 ```
 
 ***
@@ -71,16 +98,16 @@ Notes:
 Notes:
 
 ```{r Third Quantitative Variable}
-
+pf$year_joined <- floor(2014 - (pf$tenure / 365))
 ```
 
 ***
 
 ### Cut a Variable
-Notes:
+Notes: Categorizar a variável ano em faixas, para uma melhor visualização.
 
 ```{r Cut a Variable}
-
+pf$year_joined.bucket <- cut(pf$year_joined, breaks=c(2004,2009,2011,2012,2014))
 ```
 
 ***
@@ -89,7 +116,8 @@ Notes:
 Notes:
 
 ```{r Plotting it All Together}
-
+ggplot(aes(x = age, y = friend_count),  data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
 ```
 
 ***
@@ -98,7 +126,9 @@ Notes:
 Notes:
 
 ```{r Plot the Grand Mean}
-
+ggplot(aes(x = age, y = friend_count),  data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean) +
+  geom_line(stat = 'summary', fun.y = mean, linetype = 5)
 ```
 
 ***
@@ -107,7 +137,7 @@ Notes:
 Notes:
 
 ```{r Friending Rate}
-
+with(subset(pf, tenure >0), summary(friend_count / tenure))
 ```
 
 ***
