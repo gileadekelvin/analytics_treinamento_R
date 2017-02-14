@@ -146,11 +146,14 @@ with(subset(pf, tenure >0), summary(friend_count / tenure))
 Notes:
 
 What is the median friend rate?
-
+0.2205
 What is the maximum friend rate?
+417
 
 ```{r Friendships Initiated}
-
+ggplot(aes(x = tenure, y = friendships_initiated / tenure), 
+       data = subset(pf, pf$tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean)
 ```
 
 ***
@@ -186,10 +189,19 @@ ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
 
 ```
 
+```{r}
+ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_smooth(aes(color = year_joined.bucket))
+```
+
+
+
 ***
 
 ### Sean's NFL Fan Sentiment Study
-Notes:
+Notes: O trabalho de Sean foi analisar os altos e baixos nos posts dos fãs, antes, durante e após um começo de um jogo da NFL, e como esses posts se comportam quando o time
+do qual se é fã perde ou ganha.
 
 ***
 
@@ -199,9 +211,20 @@ Notes:
 ***
 
 ### Histograms Revisited
-Notes:
+Notes: O preço acima de 60 é bem acima dos demais se aumentarmos o binwidth. Alterando a visualização inicial que mostra que os preços de forma discreta.
 
 ```{r Histograms Revisited}
+yo <- read.csv('yogurt.csv')
+str(yo)
+
+yo$id <- factor(yo$id)
+str(yo)
+```
+```{r}
+ggplot(aes(x = price), data = yo) +
+  geom_histogram(fill = I("#099DD9"))
+
+ggplot(aes(price), data=yo) + geom_histogram(binwidth=10, fill=I("#099DD9"))
 
 ```
 
