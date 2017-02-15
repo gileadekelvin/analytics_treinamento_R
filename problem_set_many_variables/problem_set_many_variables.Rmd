@@ -36,6 +36,93 @@ ggplot(aes(x = table, y = price), data = diamonds) +
   scale_fill_brewer("cut", type = 'qual', palette = 1)
 ```
 
+## Quiz: Typical table value
+
+What is the typical table range for the majority of diamonds of IDEAL cut? 53-57
+
+What is the typical table range for the majority of diamonds of PREMIUM cut? 58-62
+
+## Quiz: Price vs volume and Diamond Clarity
+
+```{r}
+diamonds$volume = diamonds$x * diamonds$y * diamonds$z
+ggplot(aes(x = volume, y = price), data = subset(diamonds, volume < quantile(diamonds$volume, 0.99) & volume > 0)) +
+   geom_point(aes(color = clarity),  position = position_jitter(h = 0)) +
+  scale_y_log10() +
+  scale_color_brewer(type = 'div') +
+  ggsave("Price vs volume and Diamond Clarity Scatterplot.png")
+```
+
+## Quiz: Proportion of Friendships Initiated
+
+```{r}
+pf <- read.csv('~/workspace/analytics_treinamento_R/explore_two_variables/pseudo_facebook.tsv', sep = '\t')
+```
+
+```{r}
+pf <- transform(pf, prop_initiated = friendships_initiated / friend_count)
+```
+
+## Quiz: prop_initiated vs. tenure
+
+```{r}
+pf$year_joined <- floor(2014 - (pf$tenure / 365))
+pf$year_joined.bucket <- cut(pf$year_joined, breaks=c(2004,2009,2011,2012,2014))
+
+ggplot(aes(x = tenure, y = prop_initiated),  data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+```
+
+## Quiz: Smoothing prop_initiated vs tenure
+
+```{r}
+ggplot(aes(x = tenure, y = prop_initiated),  data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median) +
+  geom_smooth()
+```
+
+## Quiz: Largest Group mean prop_initiated
+
+```{r}
+with(subset(pf, year_joined.bucket == '(2012,2014]'), mean(prop_initiated, na.rm=TRUE))
+```
+
+## Quiz: Price/Carat Binned, faceted, & Colored
+
+```{r}
+ggplot(aes(x = cut, y = price/carat), data = diamonds) +
+  geom_jitter(aes(color = color), alpha = 0.8, position = position_jitter(h = 0)) +
+  facet_wrap(~ clarity) +
+  scale_color_brewer(type = 'div')
+```
+
+## Gapmider Multivariate Analysis
+
+```{r}
+cell_total <- read.csv('~/workspace/analytics_treinamento_R/problem_set_two_variables/cell_phone_total.csv', check.names = F)
+internet_users_per100 <- read.csv('~/workspace/analytics_treinamento_R/problem_set_two_variables/Internet_user_per100.csv', check.names = F)
+library(tidyr)
+cell_total_changed <- gather(cell_total, "year", "n", 27:48)
+cell_total_changed <- subset(cell_total_changed, select = c(1, 27, 28))
+internet_users_per100_changed <- gather(internet_users_per100, "year", "n", 2:23)
+
+df <- data.frame(cell_total_changed)
+df$internet_per100 <- internet_users_per100_changed$n
+```
+
+```{r}
+df$year <- as.numeric(df$year)
+df$year.bucket <- cut(df$year, breaks=c(1965,1980,1995,2010,2011))
+```
+
+
+
+
+
+
+
+
+
 
 
 
