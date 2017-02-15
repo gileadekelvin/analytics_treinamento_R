@@ -234,17 +234,32 @@ ggplot(aes(price), data=yo) + geom_histogram(binwidth=10, fill=I("#099DD9"))
 Notes:
 
 ```{r Number of Purchases}
+summary(yo)
 
+length(unique(yo$price))
+table(yo$price)
 ```
+
+```{r}
+yo <- transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry)
+```
+
 
 ***
 
 ### Prices over Time
-Notes:
+Notes: Os preços mais comuns(acima de 60), tendem a aumentar com o tempo.
 
 ```{r Prices over Time}
-
+ggplot(aes(x = all.purchases), data = yo) +
+  geom_histogram(binwidth = 1)
 ```
+
+```{r}
+ggplot(aes(x = time, y = price), data = yo) +
+  geom_jitter(alpha = 0.20)
+```
+
 
 ***
 
