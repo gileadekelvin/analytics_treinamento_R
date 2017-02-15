@@ -257,42 +257,73 @@ ggplot(aes(x = all.purchases), data = yo) +
 
 ```{r}
 ggplot(aes(x = time, y = price), data = yo) +
-  geom_jitter(alpha = 0.20)
+  geom_jitter(alpha = 0.25)
 ```
 
 
 ***
 
 ### Sampling Observations
-Notes:
+Notes: Quando se está trabalhando com um novo conjunto de dados, torna-se importante analisar também uma amostra dos dados. Para entender melhor comportamentos e variações. Essas amostras são escolhidas de forma aleatória.
 
 ***
 
 ### Looking at Samples of Households
 
 ```{r Looking at Sample of Households}
+set.seed(4230)
+sample.ids <- sample(levels(yo$id), 16)
 
+ggplot(aes(x = time, y = price), 
+       data = subset(yo, id %in% sample.ids)) +
+  facet_wrap(~ id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
 ```
+
+```{r}
+set.seed(100)
+sample.ids <- sample(levels(yo$id), 16)
+
+ggplot(aes(x = time, y = price), 
+       data = subset(yo, id %in% sample.ids)) +
+  facet_wrap(~ id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
+```
+Observações: Usando set.seed(100), percebi que dentre as amostras, algumas como #2129528 e #2147892 compram iogurte frequentemente. Além disso uma delas possui mais variações de preço do que a outra, o que pode ser consequência do uso de cupons de desconto. Outras famílias compram iogurte com menos frequência.
+
 
 ***
 
 ### The Limits of Cross Sectional Data
-Notes:
+Notes: Um conjunto de dados como o do facebook não permite que esse tipo de análise acima seja feita pois não é possível avaliar as variáveis como preço e quantidade de compra ao longo do tempo como feito em yo. Observando o comportamento de variáveis ao longo do tempo nos dá uma ideia melhor de qual a tendência que foi seguida.
 
 ***
 
 ### Many Variables
-Notes:
+Notes: Quando analisamos um conjunto de dados, estamos também interessados em observar 3, 4 variáveis e como se comportam e relacionam. Saber quais variáveis selecionar para plotar os gráficos pode ser um problema. Para resolver isto podemos plotar vários gráficos ao mesmo tempo para que os dados "falem" como um todo, evitando que alguma informação ou observação importante passe desapercebida.
 
 ***
 
 ### Scatterplot Matrix
-Notes:
+Notes: Criar uma matriz de gŕaficos de dispersão pelo motivo suprecitado.
+
+```{r}
+#install.packages("GGally")
+library(GGally)
+theme_set(theme_minimal(20))
+
+set.seed(1836)
+pf_subset <- pf[, c(2:15)]
+names(pf_subset)
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000), ])
+```
 
 ***
 
 ### Even More Variables
-Notes:
+Notes: Analisar dados genômicos, nesse conjunto de dados temos centenas de medidas genéticas para cada pequeno grupo de amostras.
 
 ***
 
@@ -305,6 +336,7 @@ colnames(nci) <- c(1:64)
 ```
 
 ```{r}
+library(reshape2)
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
 names(nci.long.samp) <- c("gene", "case", "value")
 head(nci.long.samp)
@@ -319,7 +351,7 @@ ggplot(aes(y = gene, x = case, fill = value),
 ***
 
 ### Analyzing Three of More Variables
-Reflection:
+Reflection: Nessa lição aperndi como analisar 3 ou mais variáveis, por exemplo sse tempos um gráfico de dispersão ou um gráfico de linha entre duas variáveis e queremos analisar uma terceira, podemos adicionar essa terceira como um cor ao gráfico. Aprendi também a remodelar os dados para uma melhor análise. Outra coisa importante foi a diferença entre analisar dados que possuem a variável de tempo como do yo, e dados que não possuem como a do facebook. A variação com o tempo nos dá uma nova interpretação dos dados e nos mostra coisas que antes não tínhamos percebido. Ao fim dessa lição pude concluir que visualizar os dados de forma correta, e trabalhar com duas ou mais variáveis é essencial em EDA, contudo é preciso ter cuidado na forma com que essa visualização está sendo feita. Também aprendi que as vezes trabalhar com uma amostra aleatória dos dados pode nos dizer muito sobre o mesmo.
 
 ***
 
