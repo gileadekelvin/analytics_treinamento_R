@@ -112,8 +112,50 @@ df$internet_per100 <- internet_users_per100_changed$n
 
 ```{r}
 df$year <- as.numeric(df$year)
-df$year.bucket <- cut(df$year, breaks=c(1965,1980,1995,2010,2011))
+df$year.bucket <- cut(df$year, breaks=c(1989, 1995, 2000, 2005, 2011))
 ```
+
+```{r}
+ggplot(aes(x = internet_per100, y = n),  data = subset(df, !is.na(n) & !is.na(internet_per100))) +
+  geom_point(aes(color = year.bucket)) +
+  scale_y_log10()
+```
+
+Se apenas considerarmos os países com internet_per100(número de pessoas com acesso a internet a cada 100 habitantes) maior que 20, e desconsiderarmos os dados de países não coletados ou iguais a 0, temos o seguinte scatterplot.
+
+```{r}
+ggplot(aes(x = internet_per100, y = n),  data = subset(df, !is.na(n) & !is.na(internet_per100) & n != 0 & internet_per100 > 20)) +
+  geom_point(aes(color = year.bucket)) +
+  scale_y_log10()
+```
+
+Ao limitarmos o conjunto de dados acabamos perdendo informação dos anos anteriores a 1995. Mas conseguimos perceber que o número de países com internet_per100 entre os anos de 2005 e 2011 é superior aos anos anteriores. 
+
+Analisando um país(BRASIL) em específico temos:
+```{r}
+df.brasil <- subset(df, Mobile.cellular.subscriptions..total.number == 'Brazil')
+
+df.brasil$internet_per100.bucket <- cut(df.brasil$internet_per100, breaks=c(0, 10, 20, 30, 50))
+
+ggplot(aes(x = year, y = n), data = subset(df.brasil, internet_per100 > 0)) +
+  geom_point(aes(color = internet_per100.bucket)) +
+```
+
+A partir do ano de 1997 é percebida uma subida na relação entre número de celulares totais no brasil e o número de pessoas a cada 100 com acesso a internet, a cada ano o número de pessoas aumenta e o número de celulares também.
+
+```{r}
+cor.test(df.brasil$year, df.brasil$n, method = "pearson")
+cor.test(df.brasil$year, df.brasil$internet_per100, method = "pearson")
+```
+
+
+
+
+
+
+
+
+
 
 
 
