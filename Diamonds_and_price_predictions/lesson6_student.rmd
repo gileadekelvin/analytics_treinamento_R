@@ -283,6 +283,7 @@ load(rawConnection(diamondsurl))
 
 ```{r}
 load("BigDiamonds.Rda")
+setwd("~/workspace/analytics_treinamento_R/Diamonds_and_price_predictions")
 ```
 
 
