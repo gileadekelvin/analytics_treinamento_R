@@ -319,10 +319,12 @@ modelEstimate = predict(m5, newdata = thisDiamond,
 
 Evaluate how well the model predicts the BlueNile diamond's price. Think about the fitted point estimate as well as the 95% CI.
 
+O diamante é um pouco mais caro do que o modelo preveu, embora esteja dentro do intervalo de confiança de 95%.
+
 ***
 
 ## Final Thoughts
-Notes:
+Notes: É preciso ter cuidado, uma análise feita pode enganar, uma vez que outras variáveis podem influenciar o modelo e acabar mascarando relações não observadas.
 
 ***
 
