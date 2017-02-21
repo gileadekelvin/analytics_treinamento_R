@@ -1,0 +1,221 @@
+Exploring Red Wine Quality by Gileade Kelvin
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using
+# in your analysis in this code chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk.
+# This prevents the code from displaying in the knitted HTML output.
+# You should set echo=FALSE for all code chunks in your file.
+
+library(ggplot2)
+library(gridExtra)
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+rw <- read.csv("~/workspace/analytics_treinamento_R/final_project/wineQualityReds.csv")
+```
+
+# Sobre os dados utilizados
+O conjunto de dados apresenta propriedades químicas sobre os vinhos(tinto). O objetivo dessa análise é identificar quais propriedades químicas influenciam na qualidade do vinho.
+
+# Entendendo as variáveis no data set
+
+Vamos entender melhor os dados dessa análise.
+
+```{r entendendo as variaveis}
+str(rw)
+```
+
+Agora que entendemos quais variáveis compõem nosso data set vamos modificar algumas delas antes de começarmos a exploração de cada uma individualmente. Inicialmente pode-se notar que a variável x é um identificador para cada linha que representa um vinho. Então faz-se necessário transformá-la numa variável categórica.
+
+```{r}
+rw$X <- factor(rw$X)
+```
+
+## Summary
+
+```{r summary}
+summary(rw)
+```
+
+A maioria das variáveis são contínuas com exceção de free.sulfur.dioxide e total.sulfur.dioxide. Mais tarde vamos investigar as disitribuições uma a uma dessas variáveis. Agora, estamos interessados em avaliar a qualidade de um vinho.
+
+```{r summary quality}
+summary(rw$quality)
+table(rw$quality)
+```
+
+Quality, pela descrição fornecida pelos organizadores do data set, é uma variável discreta, categórica que tem mínimo de 3 e máximo de 8. Dessa maneira, seria apropriado alterar o tipo de quality no data set.
+
+```{r quality}
+rw$quality <- factor(rw$quality, ordered = T)
+
+# Criando uma variável rating que classifica a qualidade de um vinho.
+rw$rating <- ifelse(rw$quality < 5, 'bad', ifelse(
+  rw$quality < 7, 'average', 'good'))
+rw$rating <- ordered(rw$rating,
+                     levels = c('bad', 'average', 'good'))
+```
+Criei um variável rating que agrupa notas atribuídas referentes a qualidade de um vinho.
+
+# Univariate Plots Section
+
+Feito isso, vamos plotar alguns gráficos para cada variável com o objetivo de observar a distribuição das mesmas.
+
+```{r histograms}
+grid.arrange(qplot(rw$fixed.acidity),
+             qplot(rw$volatile.acidity),
+             qplot(rw$citric.acid),
+             qplot(rw$residual.sugar),
+             qplot(rw$chlorides),
+             qplot(rw$free.sulfur.dioxide),
+             qplot(rw$total.sulfur.dioxide),
+             qplot(rw$density),
+             qplot(rw$pH),
+             qplot(rw$sulphates),
+             qplot(rw$alcohol),
+             qplot(rw$quality),
+             ncol = 4)
+```
+
+```{r}
+ggplot(aes(x = rating), data = rw) +
+  geom_bar(fill = I('#009688'))
+```
+
+Observando os histogramas de algumas variáveis precebemos que algumas parecem ter uma distribuição normal(pH, density), outras possuem Long-tale. Um histograma(citric.acid) em particular chamou atenção pela quantidade de 0's, talvez seja um problema com o data set, praticamente 150 0's foram observados.
+
+## Ajustando alguns histogramas
+
+```{r}
+ggplot(aes(residual.sugar), data = rw) +
+  geom_histogram(fill = I('#00796B'), binwidth = .1) +
+  scale_x_log10()
+```
+
+Para uma melhor visualização, apliquei a escala logaritmica a variável residual.sugar
+
+# Univariate Analysis
+
+### What is the structure of your dataset?
+O conjunto de dados possui 1599 observações de vinhos tinto, e 13 variáveis. A variável X é o ID de cada vinho observado. Quality é uma variável discreta, categórica resultado da opinião de especialistas sobre vinhos. Cada linha do data set corresponde a um vinho diferente analisado.
+
+### What is/are the main feature(s) of interest in your dataset?
+Nosso objetivo principal é analisar a qualidade do vinho e buscar relações com as outras variáveis que possam explicar a nota atribuída pelos especialistas. Ou seja, avaliar quais variáveis influenciam na qualidade do vinho.
+
+### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+Acredito que as variáveis que envolvem acidez, e a variável alcohol podem ajudar a explicar a qualidade do vinho.
+
+### Did you create any new variables from existing variables in the dataset?
+Criei uma variável rating que classifica em grupos a qualidade de um vinho. De 3 até 4 é considerado "bad", de 5 até 6 é considerado médio, de 7 até 8 é considerado bom.
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+As distribuições de variáveis como as de residual.sugar que são consideradas de cauda longa, precisam ser ajustadas de forma a uma melhor visualização. Isso foi feito alterando a escala usando log10.
+
+
+# Bivariate Plots Section
+
+Nessa seção irei buscar correlações entre as variáveis com relação a qualidade do vinho.
+
+Usando o ggpairs para identificar possíveis correlações entre variáveis, mas também mais interessado em observar os box plots entre cada variável e quality. 
+```{r}
+library(GGally)
+library(scales)
+library(memisc)
+ggpairs(rw[2:13])
+```
+
+Observando que algumas variáveis podem influenciar mais quality, selecionei aquelas que apresentam mais variação entre as medianas da caixas. Nesse caso, poderei estar enganado, mas vale a pena uma olhada mais de perto. As variáveis selecionadas foram volatile.acidity, citric.acid e alcohol.
+
+## Volatile.acidity
+
+```{r volatile.acidity boxplot}
+ggplot(aes(x = quality, y = volatile.acidity), data = rw) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(aes(x = volatile.acidity), data = rw) +
+  geom_histogram() +
+  facet_wrap(~quality)
+```
+
+```{r}
+ggplot(aes(x = citric.acid), data = rw) +
+  geom_histogram() +
+  facet_wrap(~quality)
+```
+
+
+#### USAR GROUPS nas variáveis, sumarizar para verificar a média, a mediana. Código parecido com a lesson 4.
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+
+### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+
+
+
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+### Were there any interesting or surprising interactions between features?
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+```
+
+### Description One
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+```
+
+### Description Two
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+```
+
+### Description Three
+
+------
+
+# Reflection
